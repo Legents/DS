@@ -17,30 +17,32 @@ typedef struct course {	//课程信息节点
 	float credit;//课程学分
 	int stu_num;//选课人数
 	struct course *lc, *rc;
-	struct stu_c *link;//指向选修这门课程的学生
+	stu_c_link link;//指向选修这门课程的学生
 }course,*bt_course;
-typedef struct student {//独立保存时的学生节点
-	int s_id;//学号
-	char s_name[50];//学生姓名
-	struct grade *g;//指向保存这名学生所选课程信息的链表
-	struct student *next;//指向下一名学生
-}student,*s_link;
 typedef struct grade {//课程成绩节点，用于学生信息单独保存时存储成绩
 	char course_name[50];//课程名
 	int g;//成绩
-	struct grade *next;
-}grade,*g_link;
+};
+typedef struct student {//独立保存时的学生节点
+	int s_id;//学号
+	char s_name[50];//学生姓名
+	int course_num;
+	grade g[10];//指向保存这名学生所选课程信息的链表
+	struct student *next;//指向下一名学生
+}student,*s_link;
 /**
 *函数声明
 */
 void main_menu();
 void course_menu();
 void student_menu();
-void stu_add();
-void stu_delete();
-void stu_change();
+s_link InitList();
+void stu_add(s_link student);
+void stu_delete(s_link student);
+void stu_info_change(s_link student);
+void stu_grade_change(s_link student);
 void stu_search();
-void stu_print();
+void stu_print(s_link student);
 bt_course course_add(bt_course root);
 bt_course course_delete(bt_course root);
 void course_change(bt_course root);
@@ -50,6 +52,7 @@ void course_In_print(bt_course root);
 void course_Post_print(bt_course root);
 void course_add_stu();
 bt_course root = (bt_course)malloc(sizeof(course));
+s_link student1 = InitList();
 static int course_num = 0;
 /**
 *主函数，程序入口
@@ -429,9 +432,10 @@ void student_menu() {
 	printf("\t\t*\t\t\t1:学生增加\t\t\t*\n");
 	printf("\t\t*\t\t\t2:学生删除\t\t\t*\n");
 	printf("\t\t*\t\t\t3:学生信息修改\t\t\t*\n");
-	printf("\t\t*\t\t\t4:学生信息查询\t\t\t*\n");
-	printf("\t\t*\t\t\t5:学生信息输出\t\t\t*\n");
-	printf("\t\t*\t\t\t6:返回上层\t\t\t*\n");
+	printf("\t\t*\t\t\t4:学生成绩修改\t\t\t*\n");
+	printf("\t\t*\t\t\t5:学生信息查询\t\t\t*\n");
+	printf("\t\t*\t\t\t6:学生信息输出\t\t\t*\n");
+	printf("\t\t*\t\t\t7:返回上层\t\t\t*\n");
 	printf("\t\t*\t\t\t其他：退出\t\t\t*\n");
 	printf("\t\t*********************************************************\n");
 	printf("\t\t请选择：\n");
@@ -439,30 +443,201 @@ void student_menu() {
 	scanf("%d", &ch);
 	switch (ch)
 	{
-	case 1:system("cls"); stu_add(); break;
-	case 2:system("cls"); stu_delete(); break;
-	case 3:system("cls"); stu_change(); break;
-	case 4:system("cls"); stu_search(); break;
-	case 5:system("cls"); stu_print(); break;
-	case 6:system("cls"); main(); break;
-	default:system("cls"); student_menu(); break;
+	case 1:system("cls"); 
+		   stu_add(student1);
+		   system("cls");
+		   student_menu();
+		   break;
+	case 2:system("cls"); stu_delete(student1); system("cls"); student_menu(); break;
+	case 3:system("cls"); stu_info_change(student1); system("cls"); student_menu(); break;
+	case 4:system("cls"); stu_grade_change(student1); system("cls"); student_menu(); break;
+	case 5:system("cls"); stu_search(); system("cls"); student_menu(); break;
+	case 6:system("cls"); stu_print(student1); system("cls"); student_menu(); break;
+	case 7:system("cls"); main(); system("cls"); student_menu(); break;
+	default:system("cls");exit(0); break;
 	}
 }
 /**
 *学生管理部分函数操作
 */
-void stu_add() {
-	
+s_link InitList()//初始化链表 
+{
+	s_link h = (s_link)malloc(sizeof(student));
+	if (!h)//判断是否为h分配到所需空间 
+	{
+		printf("初始化链表错误！\n");
+		exit(0);
+	}
+	h->next = NULL;
+
+	return h;
 }
-void stu_delete() {
-	
+void stu_add(s_link student) {
+	printf("请输入添加学生的信息：\n");
+	int id;
+	char name[50];
+	scanf("%d", &id);
+	scanf("%s", name);
+	printf("即将添加的学生信息为：\n学号：%d  姓名：%s\n", id, name);
+	char c;
+	printf("确认添加？（Y/N）\n");
+	fflush(stdin);
+	scanf("\n%c", &c);
+	s_link p = student;
+	s_link q = (s_link)malloc(sizeof(student));
+	if (c == 'y' || c == 'Y') {
+		q->s_id = id;
+		strcpy(q->s_name, name);
+		q->course_num = 0;
+		q->next = student->next;
+		student->next = q;
+	}
+	else {
+		system("cls");
+		stu_add(student);
+	}
+	char ch;
+	printf("继续添加该学生的成绩？（Y/N）\n");
+	fflush(stdin);
+	scanf("\n%c", &ch);
+	if (ch == 'y' || ch == 'Y') {
+		if (q->course_num >= 10) {
+			printf("该学生当前课程数量已达到上限！请删除相关课程后再操作！");
+			system("pause");
+			return;
+		}
+		else {
+			printf("请输入要添加的课程名称及该门课程的成绩（以0 0结束）：\n");
+			char cou_name[50];
+			int cou_g;
+			do {
+				if (q->course_num >= 10) {
+					printf("该学生当前课程数量已达到上限！请删除相关课程后再操作！");
+					system("pause");
+					return;
+				}
+				else {
+					scanf("%s", cou_name);
+					scanf("%d", &cou_g);
+					if (strcmp(cou_name, "0") != 0 || cou_g != 0) {
+						strcpy(q->g[q->course_num].course_name, cou_name);
+						q->g[q->course_num].g = cou_g;
+						q->course_num = q->course_num + 1;
+					}
+				}
+			} while (strcmp(cou_name, "0") != 0 || cou_g != 0);
+			printf("成绩添加结束！\n");
+			getch();
+		}
+	}
+	else
+		return;
 }
-void stu_change() {
+void stu_delete(s_link student) {
+	s_link p = student;
+	printf("请选择按学号（1）删除或者按姓名（2）删除(1/2),选择其他项返回上一层：\n");
+	int c;
+	scanf("%d", &c);
+	if (c == 1) {
+		int id;
+		printf("请输入你要删除的学生学号：\n");
+		scanf("%d", &id);
+		while (p->next) {
+			if (p->next->s_id == id) {
+				s_link q = p->next;
+				p->next = q->next;
+				printf("删除成功！\n");
+				system("pause");
+				return;
+			}
+		}
+		printf("该学生不存在！\n");
+		system("pause");
+	}
+	else if (c == 2) {
+		char name[50];
+		printf("请输入你要删除的学生姓名：\n");
+		scanf("%s", name);
+		while (p->next) {
+			if (strcmp(p->next->s_name,name)==0) {
+				s_link q = p->next;
+				p->next = q->next;
+				printf("删除成功！\n");
+				system("pause");
+				return;
+			}
+		}
+		printf("该学生不存在！\n");
+		system("pause");
+	}
+	else {
+		system("cls");
+		student_menu();
+	}
+}
+void stu_info_change(s_link student) {
+	s_link p = student->next;
+	printf("请选择按学号（1）修改或者按姓名（2）修改(1/2),选择其他项返回上一层：\n");
+	int c;
+	scanf("%d", &c);
+	if (c == 1) {
+		int id;
+		char name[50];
+		printf("请输入你要修改信息的学生学号：\n");
+		scanf("%d", &id);
+		printf("请输入修改后的学生姓名：\n");
+		scanf("%s", name);
+		while (p) {
+			if (p->s_id == id) {
+				strcpy(p->s_name, name);
+				printf("修改成功！\n");
+				system("pause");
+				return;
+			}
+		}
+		printf("该学生不存在！\n");
+		system("pause");
+	}
+	else if (c == 2) {
+		int id;
+		char name[50];
+		printf("请输入你要修改的学生姓名：\n");
+		scanf("%s", name);
+		printf("请输入修改后的学生学号：\n");
+		scanf("%d", &id);
+		while (p) {
+			if (strcmp(p->next->s_name, name) == 0) {
+				p->s_id = id;
+				printf("修改成功！\n");
+				system("pause");
+				return;
+			}
+		}
+		printf("该学生不存在！\n");
+		system("pause");
+	}
+	else {
+		system("cls");
+		student_menu();
+	}
+}
+void stu_grade_change(s_link student) {
 
 }
-void stu_search() {
+void stu_search() { 
 	
 }
-void stu_print() {
-	
+void stu_print(s_link student) {
+	s_link p = student->next;
+	printf("学号\t姓名\t课程及其成绩\n");
+	while (p) {
+		printf("%d\t%s\t", p->s_id, p->s_name);
+		int i;
+		for (i = 0; i < p->course_num; i++) {
+			printf("%s:%d   ", p->g[i].course_name, p->g[i].g);
+		}
+		p = p->next;
+		printf("\n");
+	}
+	system("pause");
 }
