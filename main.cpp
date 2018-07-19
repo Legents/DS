@@ -46,10 +46,10 @@ void course_change(bt_course root);//课程修改
 void course_search(bt_course root);//课程查找
 void course_BST(bt_course root, int key);//课程的二分查找
 void print_course_with_stu(bt_course root);//将课程与该门课程的学生一起输出
+void course_stu_print(stu_c_link q);//每门课程的学生名单输出
 void course_In_print(bt_course root);//中序
 void course_Post_print(bt_course root);//后序
 int search_course_node(bt_course root);//查找需要的课程节点
-void course_stu_print(stu_c_link q);//每门课程的学生名单输出
 int course_confirmation(bt_course root);//确认该门课程是否存在
 void course_statistics(bt_course root);//信息统计函数
 void average(bt_course c);
@@ -218,6 +218,7 @@ void course_menu(bt_course root, s_link student1) {
 		   if (course_num == 0)
 				printf("课程为空，暂无统计信息！\n");
            else {
+			   printf("%-10s|  %-20s|  %-10s|  %-10s| %-10s\n", "课程代码", "课程名称", "课程学分", "选课人数", "平均成绩");
 			   course_statistics(root);
 		   }
 		   system("pause");
@@ -461,7 +462,10 @@ bt_course course_delete(bt_course root, s_link student1) {
 		}
 		delete_course_in_student(student1, del_name);
 		course_num--;
-		printf("删除成功\n");
+		printf("删除后的所有课程如下：\n");
+		printf("%-10s|  %-20s|  %-10s|  %-10s\n", "课程代码", "课程名称", "课程学分", "选课人数");
+		course_Post_print(root);
+		printf("\n删除成功\n");
 		if(course_num==0)
 			return root = (bt_course)malloc(sizeof(course));
 		return root;
@@ -591,6 +595,14 @@ void print_course_with_stu(bt_course root) {
 		print_course_with_stu(root->rc);
 	}
 }
+void course_stu_print(stu_c_link q) {
+	q = q->next;
+	printf("%-10s|%-10s|%-4s\n", "学号", "姓名", "成绩");
+	while (q) {
+		printf("%-10d|%-10s|%-4d\n", q->s_id, q->s_name, q->g);
+		q = q->next;
+	}
+}
 void course_In_print(bt_course root) {
 	if (root != NULL) {
 		course_In_print(root->lc);
@@ -615,28 +627,18 @@ int search_course_node(bt_course root) {
 		search_course_node(root->rc);
 	}
 }
-void course_stu_print(stu_c_link q) {
-	q = q->next;  
-	printf("%-10s|%-10s|%-4s\n", "学号","姓名","成绩");
-	while (q) {
-		printf("%-10d|%-10s|%-4d\n", q->s_id, q->s_name, q->g);
-		q = q->next;
-	}
-}
 int course_confirmation(bt_course root) {
 	if (root != NULL) {
-		search_course_node(root->lc);
+		course_confirmation(root->lc);
+		course_confirmation(root->rc);
 		if (strcmp(root->course_name, sear_course_name) == 0) {
 			return 1;
 		}
-		search_course_node(root->rc);
 	}
-	return 0;
 }
 void course_statistics(bt_course root) {
 	if (root != NULL) {
 		course_statistics(root->lc);
-		printf("%-10s|  %-20s|  %-10s|  %-10s| %-10s\n", "课程代码", "课程名称", "课程学分", "选课人数","平均成绩");
 		printf("%-10d|  %-20s|  %-10.2f|  %-10d", root->course_id, root->course_name, root->credit, root->stu_num);
 		average(root);
 		course_statistics(root->rc);
@@ -656,7 +658,7 @@ void average(bt_course c) {
 		}
 	}
 	float ave = (float)sum / c->stu_num;
-	printf(" %-.2f", ave);
+	printf(" %-.2f\n", ave);
 }
 /**
 *学生管理部分菜单选项
@@ -827,7 +829,7 @@ s_link stu_add_grade(s_link q, bt_course root) {
 					printf("请输入要添加的课程名称及该门课程的成绩，成绩的范围为[0,100]。（以0 0结束）：\n");
 					scanf("%s", sear_course_name);
 					scanf("%d", &cou_g);
-					if (strcmp(sear_course_name, "0") != 0 || cou_g != 0) {
+					if (strcmp(sear_course_name, "0") != 0 && cou_g != 0) {
 						int i;
 						for (i = 0; i < q->c_num; i++) {
 							if (strcmp(sear_course_name, q->g[i].course_name) == 0) {
@@ -841,7 +843,6 @@ s_link stu_add_grade(s_link q, bt_course root) {
 								strcpy(q->g[q->c_num].course_name, sear_course_name);
 								q->g[q->c_num].g = cou_g;
 								q->c_num = q->c_num + 1;
-
 								bt_course btc = search_course_node2(root);
 								stu_c_link p = btc->link;
 								stu_c_link s = (stu_c_link)malloc(sizeof(stu_c));
@@ -887,7 +888,7 @@ s_link stu_add_grade(s_link q, bt_course root) {
 						
 					}
 				}
-			} while (strcmp(sear_course_name, "0") != 0 || cou_g != 0 || flag);
+			} while (strcmp(sear_course_name, "0") != 0 && cou_g != 0);
 			printf("成绩添加结束！\n");
 			return q;
 		}
