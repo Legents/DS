@@ -55,7 +55,7 @@ typedef struct stu_c { //与课程联合存储时的学生节点，
 
 课程的存储用二叉排序树实现，存储结构如下图：
 
-![课程存储结构设计](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\1559466220109.png)
+![课程存储结构设计](https://github.com/Legents/DS/blob/master/3.PNG)
 
 课程存储的数据结构：
 
