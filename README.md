@@ -1,6 +1,6 @@
 # DS
 ## 数据结构课程设计
-``` flow
+``` Flowchart
 grapg LR
 st=>start:开始
 op1=>operation: 输入课程信息
