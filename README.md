@@ -16,7 +16,7 @@
 
 学生独立存储时用单链表实现，单链表节点结构如下所示： 
 
-![独立存储结构](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\1559465634224.png)
+![独立存储结构](https://github.com/Legents/DS/blob/master/1.PNG)
 
 独立存储时的数据结构：
 
