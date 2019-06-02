@@ -38,7 +38,7 @@ typedef struct student {//独立保存时的学生节点
 
 连接课程存储时学生信息用单链表实现，节点结构如下图：
 
-![与课程联合存储时的节点结构](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\1559465902513.png)
+![与课程联合存储时的节点结构](https://github.com/Legents/DS/blob/master/2.PNG)
 
 ​	连接课程存储时学生信息的数据结构：
 
